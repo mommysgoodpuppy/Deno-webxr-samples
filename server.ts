@@ -18,9 +18,10 @@ const handler = async (req: Request): Promise<Response> => {
     if (path.endsWith("/")) { path += "index.html"; }
     const filePath = path === "/" ? "./index.html" : `.${path}`;
     const ext = extname(filePath);
+    const webxrpath = `./webxr${path}`
 
     try {
-        const response = await serveFile(req, filePath);
+        const response = await serveFile(req, webxrpath);
         const contentType = typeByExtension(ext) || "application/octet-stream";
         response.headers.set("content-type", contentType);
         return response;
@@ -31,11 +32,30 @@ const handler = async (req: Request): Promise<Response> => {
 };
 const cert = await Deno.readTextFile("./cert.pem");
 const key = await Deno.readTextFile("./key.pem");
+const port = 443;
 const options = {
     hostname: "0.0.0.0",
-    port: 8443,
+    port: port,
     cert: cert,
     key: key,
 };
-console.log(`HTTPS server running. Access it at: https://localhost:8443/`);
+console.log(`HTTPS server running. Access it at: https://localhost:${port}/`);
 Deno.serve(options, handler);
+
+//#region http redirect
+const redirectToHttps = async (req: Request): Promise<Response> => {
+const url = new URL(req.url);
+const httpsUrl = `https://${url.hostname}${url.port ? `:${url.port}` : ''}${url.pathname}`;
+return new Response(null, {
+    status: 301,
+    headers: {
+    "Location": httpsUrl,
+    },
+});
+};
+
+const httpPort = 80;
+  
+console.log(`HTTP server running. Redirecting all requests to HTTPS.`);
+Deno.serve( { hostname: "0.0.0.0", port: httpPort }, redirectToHttps,);
+//#endregion

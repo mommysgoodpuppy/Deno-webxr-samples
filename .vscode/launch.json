@@ -4,9 +4,8 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
+        {   "name": "webxr server",
             "request": "launch",
-            "name": "Launch Program",
             "type": "node",
             "program": "${workspaceFolder}/server.ts",
             "cwd": "${workspaceFolder}",
@@ -14,6 +13,28 @@
             "runtimeExecutable": "Deno",
             "runtimeArgs": [
                 "run",
+                "--watch",
+                "--inspect-wait",
+                "--allow-net",
+                "--allow-read",
+                "--allow-all"
+            ],
+            "attachSimplePort": 9229
+        },
+        {   "name": "denoshot",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/denoshot.ts",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "runtimeExecutable": "Deno",
+            "runtimeArgs": [
+                "run",
+                "--watch",
+                "--allow-env",
+                "--allow-write",
+                "--allow-run",
+                "--unstable",
                 "--inspect-wait",
                 "--allow-net",
                 "--allow-read",
